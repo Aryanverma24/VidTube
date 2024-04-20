@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./PlayVideo.css";
 import video1 from "../../assets/images/video.mp4";
 import like from "../../assets/images/like.png";
@@ -7,14 +7,35 @@ import share from "../../assets/images/share.png";
 import save from "../../assets/images/save.png";
 import jack from "../../assets/images/jack.png";
 import user_profile from "../../assets/images/user_profile.jpg";
+import { Api_key } from "../../data";
+import { valueConverter } from "../../data";
+import moment from "moment";
 
-const PlayVideo = () => {
+
+const PlayVideo = ({videoId}) => {
+
+  const [apiData,setApiData] = useState(null);
+
+  const fetchVideoData = async() =>{
+      // fetching video data
+
+      const videoDetails_url = `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%Cstatistics&id=${videoId}&key=${Api_key}`;
+
+      await fetch(videoDetails_url).then(res=>res.json()).then(data => setApiData(data.item[0]));
+  }
+
+  useEffect(() => {
+    fetchVideoData;
+  })
+
   return (
     <div className="play-video">
-      <video src={video1} controls autoPlay muted></video>
-      <h3>Best Youtube Channel To Learn Web Developement</h3>
+      {/* <video src={video1} controls autoPlay muted></video> */}
+      <iframe src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}  frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+      <h3>{apiData?apiData.snippet.title:"Title Here"}</h3>
       <div className="play-video-info">
-        <p>1521 Views &bull; 2 days ago</p>
+        <p>{apiData?valueConverter(apiData.statistics.viewCount):"16k"} Views &bull; {apiData?moment(apiData.snippet.publishedAt).fromNow():""}</p>
         <div>
           <span><img src={like} /> 125</span>
           <span><img src={dislike} />2</span>
